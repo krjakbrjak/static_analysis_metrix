@@ -11,7 +11,6 @@ pipeline {
 
           cmake -DBUILD_SAMPLE=ON -DCMAKE_INSTALL_PREFIX=installation -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G Ninja ..;
           cmake --build . -- -j8;
-          find .. -name *.cpp -exec clang-tidy -p . {} \\;
         '''
         recordIssues enabledForFailure: true, qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]], tools: [clangTidy()]
       }
