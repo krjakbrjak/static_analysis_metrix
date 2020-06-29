@@ -14,7 +14,7 @@ class Dummy: public interfaces::IResource
 int main(int argc, char **argv)
 {
     using namespace interfaces;
-    std::unique_ptr<IResource> resource = std::make_unique<Dummy>();
+    std::unique_ptr<IResource> resource = std::make_unique<Dummy>(); //NOLINT
     resource->release();
     return 0;
 }
