@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(static_analysis_metrix)
 
-set(CLANG_TIDY_EXECUTABLE clang-tidy CACHE FILEPATH "clang-tidy executable")
-
-set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_EXECUTABLE})
+enable_testing()
 
 add_library(interfaces INTERFACE)
 target_include_directories(interfaces
@@ -31,3 +29,6 @@ install(
 if (BUILD_SAMPLE)
     add_subdirectory(sample)
 endif ()
+
+add_subdirectory(tests)
+

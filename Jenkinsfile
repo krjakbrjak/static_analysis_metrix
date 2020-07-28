@@ -1,21 +1,8 @@
 pipeline {
-   agent {
-     dockerfile true
-   }
-   stages {
-     stage('Build') {
-       steps {
-        sh '''
-          mkdir -p build;
-          cd build;
-
-          cmake -DBUILD_SAMPLE=ON -DCMAKE_INSTALL_PREFIX=installation -G Ninja ..;
-          cmake --build . -- -j8;
-        '''
-        recordIssues enabledForFailure: true, qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]], tools: [clangTidy()]
-      }
-    }
-
+  agent {
+    dockerfile true
+  }
+  stages {
     stage('Style check') {
       steps {
         script {
@@ -28,6 +15,20 @@ pipeline {
             currentBuild.result = 'UNSTABLE'
           }
         }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        cmakeBuild buildDir: 'build', cmakeArgs: '-DBUILD_SAMPLE=ON', installation: 'InSearchPath', steps: [[withCmake: true]]
+        recordIssues enabledForFailure: true, qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]], tools: [clangTidy()]
+      }
+    }
+
+    stage('Unit test') {
+      steps {
+        ctest arguments: '-T test --no-compress-output', installation: 'InSearchPath', workingDir: 'build'
+        xunit([CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/Testing/**/*.xml', skipNoTestFiles: false, stopProcessingIfError: true)])
       }
     }
   }
