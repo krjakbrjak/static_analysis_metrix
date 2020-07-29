@@ -27,7 +27,11 @@ pipeline {
 
     stage('Build') {
       steps {
-        cmakeBuild buildDir: 'build', cmakeArgs: '-DBUILD_SAMPLE=ON', installation: 'InSearchPath', steps: [[withCmake: true]]
+        sh '''
+          mkdir dep && cd dep &&
+          conan install .. --build missing
+        '''
+        cmakeBuild buildDir: 'build', cmakeArgs: '-DBUILD_SAMPLE=ON -DCMAKE_PROJECT_static_analysis_metrix_INCLUDE=dep/conan_paths.cmake', installation: 'InSearchPath', steps: [[withCmake: true]]
         recordIssues enabledForFailure: true, qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]], tools: [clangTidy()]
       }
     }
